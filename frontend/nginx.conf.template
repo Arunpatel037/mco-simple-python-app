@@ -1,0 +1,9 @@
+server {
+    listen 8080;
+    root /usr/share/nginx/html;
+
+    # Send API calls to the backend. BACKEND_URL is filled in when the container starts.
+    location /api/ {
+        proxy_pass ${BACKEND_URL};
+    }
+}

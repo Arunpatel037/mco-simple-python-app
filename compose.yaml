@@ -1,0 +1,27 @@
+services:
+  mco-simple-python-app-backend:
+    build: ./backend
+    image: mco-simple-python-app-backend
+    environment:
+      DB_PATH: ${DB_PATH:-/data/app.db}
+    volumes:
+      - data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 5s
+      retries: 5
+
+  mco-simple-python-app-frontend:
+    build: ./frontend
+    image: mco-simple-python-app-frontend
+    environment:
+      BACKEND_URL: ${BACKEND_URL:-http://mco-simple-python-app-backend:8000}
+    ports:
+      - "8080:8080"
+    depends_on:
+    #  Wait for backend to be healthy before starting frontend.
+      mco-simple-python-app-backend:
+        condition: service_healthy
+
+volumes:
+  data:
